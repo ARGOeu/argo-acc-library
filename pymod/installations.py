@@ -1,5 +1,4 @@
-from pymod.restresource import RestResourceList, RestResourceItem
-
+from .restresource import RestResourceList, RestResourceItem
 from .metrics import InstallationMetrics
 
 

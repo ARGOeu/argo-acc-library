@@ -66,7 +66,6 @@ class RestResourceItem(RestResource):
             if isinstance(self.__dict__[x], RestResource) and x not in {"_parent"}:
                 d2 = self.__dict__[x].__dict__
                 del d2["_parent"]
-                # use regex to compensate for _Classname__propertyname naming of @properties
                 d1 = {**d1, x: d2}
         # Return a JSON representation of the built dictionary
         return json.dumps(d1)
