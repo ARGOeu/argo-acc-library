@@ -4,7 +4,7 @@ import abc
 from time import sleep
 import logging
 
-logger = logging.getLogger("argo_acc_library")
+logger = logging.getLogger(__name__)
 
 
 class RestResource(object):
@@ -49,7 +49,7 @@ class RestResourceItem(RestResource):
             self.id = data["__fetch__"]
             data = self._fetch()
         for k in data:
-            logger.debug("setting " + k + " to " + (str(data[k]) or "<None>"))
+            # logger.debug("setting " + k + " to " + (str(data[k]) or "<None>"))
             setattr(self, k, data[k])
 
     def __str__(self):
@@ -161,15 +161,33 @@ class RestResourceList(OrderedDict, RestResource):
         self._currentPage += 1
 
     def __iter__(self):
-        """Iterator over all results, using self::_fetch for each page"""
+        """Iterate over all results, using self::_fetch for each page"""
         logger.debug("ITERING")
-        logger.debug("PAGE " + str(self._currentPage) + " of " + str(self._pageCount))
         while self._currentPage < self._pageCount:
             self._fetch()
+            logger.debug(
+                "PAGE " + str(self._currentPage) + " of " + str(self._pageCount)
+            )
             for i, j in enumerate(self.items()):
                 if i >= (self._currentPage - 1) * self._pageSize:
                     yield j[1]
         logger.debug("EOD")
+
+    def _iterN(self, n: int):
+        """
+        Iterate up to the n-th result, using self::_fetch for each page.
+        Used by __getitem__ to avoid fetching everying, when asking for an item by index instead of ID
+        """
+        logger.debug("ITERING up to " + str(n))
+        while self._currentPage * self._pageSize <= n:
+            self._fetch()
+            logger.debug(
+                "PAGE " + str(self._currentPage) + " of " + str(self._pageCount)
+            )
+            for i, j in enumerate(self.items()):
+                if i >= (self._currentPage - 1) * self._pageSize:
+                    yield j[1]
+        logger.debug("EOD(" + str(n) + ")")
 
     def __getitem__(self, id):
         """
@@ -179,13 +197,16 @@ class RestResourceList(OrderedDict, RestResource):
         If not, check the cache. If there's no such item, attempt a fetch request and cache the item
         upon success
         """
-        item = super(OrderedDict, self).get(id)
-        if item is None:
-            item = self._cache.get(id)
+        if isinstance(id, int):
+            item = list(self._iterN(id))[id]
+        else:
+            item = super(OrderedDict, self).get(id)
             if item is None:
-                item = self._createChild({"__fetch__": id})
-                if item is not None:
-                    self._cache.update({getattr(item, self.idName): item})
+                item = self._cache.get(id)
+                if item is None:
+                    item = self._createChild({"__fetch__": id})
+                    if item is not None:
+                        self._cache.update({getattr(item, self.idName): item})
         return item
 
     def get(self, id, default=None):
