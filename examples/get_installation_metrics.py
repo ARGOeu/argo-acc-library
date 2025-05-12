@@ -4,8 +4,6 @@ from argparse import ArgumentParser
 from argo_acc_library import ArgoAccountingService
 import sys
 
-from pymod.exceptions import AccServiceException
-
 if __name__ == "__main__":
     parser = ArgumentParser(description="Simple Argo Accounting metric fetch example")
     parser.add_argument(
