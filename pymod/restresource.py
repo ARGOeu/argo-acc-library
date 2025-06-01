@@ -8,7 +8,7 @@ from typing import Union
 logger = logging.getLogger(__name__)
 
 
-class RestResource(object):
+class RestResource(abc.ABC):
     """Base class for REST API responses"""
 
     def __init__(self, parent):
@@ -44,9 +44,9 @@ class RestResourceItem(RestResource):
         If the dictionary contains a single entry named "__fetch__" instead of actual response data,
         then the data will be fetched from the API.
         """
-        logger.debug("Initing RestResourceItem object")
+        logger.debug("Initing RestResourceItem object " + str(type(self)))
         self._parent = parent
-        if len(data) == 1 and data["__fetch__"]:
+        if len(data) == 1 and data.get("__fetch__") is not None:
             self.id = data["__fetch__"]
             data = self._fetch()
         for k in data:
@@ -60,6 +60,7 @@ class RestResourceItem(RestResource):
             x: self.__dict__[x]
             for x in self.__dict__
             if not isinstance(self.__dict__[x], RestResource)
+            and x not in {"_parent", "parent"}
         }
         # Loop over properties that are RestResource instances (excluding "_parent")
         # and append their properties to the dictionary
@@ -110,7 +111,7 @@ class RestResourceList(OrderedDict, RestResource):
     _cache = OrderedDict()
 
     def __init__(self, parent, pageSize=10):
-        logger.debug("Initing RestResourceList object")
+        logger.debug("Initing RestResourceList object " + str(type(self)))
         super(OrderedDict, self).__init__()
         super(RestResource, self).__init__()
         self._parent = parent

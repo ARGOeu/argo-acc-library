@@ -1,6 +1,72 @@
 from httmock import urlmatch, response
 import json
 
+class ProviderMocks(object):
+    LIST_PROVIDERS_RESPONSE = """{"size_of_page":1,"number_of_page":1,"total_elements":1,"total_pages":1,"content":[{"id":"TESTPROV01","name":"TEST PROVIDER 01","website":"https://example.org","abbreviation":"TESTPROV01","logo":"https://example.org","creator_id":"0123456789abcdef"}], "links": []}"""
+
+    GET_PROVIDER_TEST_RESPONSE = """{"id":"TESTPROV01","name":"TEST PROVIDER 01","website":"https://example.org","abbreviation":"TESTPROV01","logo":"https://example.org","creator_id":"0123456789abcdef"}"""
+
+    list_providers_urlmatch = dict(
+        netloc="localhost",
+        path="/accounting-system/providers",
+        method="GET",
+        query="page=1",
+    )
+
+    get_provider_test_urlmatch = dict(
+        netloc="localhost",
+        path="/accounting-system/providers/TESTPROV01",
+        method="GET",
+    )
+
+    @urlmatch(**list_providers_urlmatch)
+    def list_providers_mock(self, url, request):
+        assert url.path == "/accounting-system/providers"
+        assert request.method == "GET"
+        return response(200, self.LIST_PROVIDERS_RESPONSE, None, None, 5, request)
+
+    @urlmatch(**get_provider_test_urlmatch)
+    def get_provider_test_mock(self, url, request):
+        assert url.path == "/accounting-system/providers/TESTPROV01"
+        assert request.method == "GET"
+        return response(
+            200, self.GET_PROVIDER_TEST_RESPONSE, None, None, 5, request
+        )
+
+
+class ProjectMocks(object):
+    LIST_PROJECTS_RESPONSE = """{"size_of_page":1,"number_of_page":1,"total_elements":1,"total_pages":1,"content":[{"id": "TESTPROJ01", "acronym": "TestProj01", "title": "TEST PROJECT 01", "start_date": "2024-04-01", "end_date": "2027-03-31", "call_identifier": "TESTCALL01", "providers": [{"id": "TESTPROV01", "name": "Test Provider 01", "website": "https://example.org", "abbreviation": "testprov01", "logo": "https://example.com", "installations": [{"id": "68179546f1a5b48f0c854353", "infrastructure": "TESTINFRA01", "installation": "TESTINSTA01", "resource": "TESTRES01", "unit_of_access": null}]}]}], "links": []}"""
+
+    GET_PROJECT_TEST_RESPONSE = """{"id": "TESTPROJ01", "acronym": "TestProj01", "title": "TEST PROJECT 01", "start_date": "2024-04-01", "end_date": "2027-03-31", "call_identifier": "TESTCALL01", "providers": [{"id": "TESTPROV01", "name": "Test Provider 01", "website": "https://example.org", "abbreviation": "testprov01", "logo": "https://example.com", "installations": [{"id": "68179546f1a5b48f0c854353", "infrastructure": "TESTINFRA01", "installation": "TESTINSTA01", "resource": "TESTRES01", "unit_of_access": null}]}]}"""
+
+    list_projects_urlmatch = dict(
+        netloc="localhost",
+        path="/accounting-system/projects",
+        method="GET",
+        query="page=1",
+    )
+
+    get_project_test_urlmatch = dict(
+        netloc="localhost",
+        path="/accounting-system/projects/TESTPROJ01",
+        method="GET",
+    )
+
+    @urlmatch(**list_projects_urlmatch)
+    def list_projects_mock(self, url, request):
+        assert url.path == "/accounting-system/projects"
+        assert request.method == "GET"
+        return response(200, self.LIST_PROJECTS_RESPONSE, None, None, 5, request)
+
+    @urlmatch(**get_project_test_urlmatch)
+    def get_project_test_mock(self, url, request):
+        assert url.path == "/accounting-system/projects/TESTPROJ01"
+        assert request.method == "GET"
+        return response(
+            200, self.GET_PROJECT_TEST_RESPONSE, None, None, 5, request
+        )
+
+
 class InstallationMocks(object):
     LIST_INSTALLATIONS_RESPONSE1 = """{"size_of_page":10,"number_of_page":1,"total_elements":12,"total_pages":2,"content":[
         {"id":"68179546f1a5b48f0c854353","project":"TESTPROJ01","organisation":"TESTORG01","infrastructure":"TESTINFRA01","installation":"TESTINSTA01","resource":"TESTRES01","unit_of_access":null},
@@ -40,6 +106,19 @@ class InstallationMocks(object):
         method="GET",
     )
 
+    list_test_project_installations_urlmatch = dict(
+        netloc="localhost",
+        path="/accounting-system/projects/TESTPROJ01/installations",
+        method="GET",
+    )
+
+    list_test_project_providers_installations_urlmatch = dict(
+        netloc="localhost",
+        path="/accounting-system/projects/TESTPROJ01/providers/TESTPROV01/installations",
+        method="GET",
+        query="page=1",
+    )
+
     @urlmatch(**list_installations_urlmatch1)
     def list_installations_mock1(self, url, request):
         assert url.path == "/accounting-system/installations/all"
@@ -60,6 +139,17 @@ class InstallationMocks(object):
             200, self.GET_INSTALLATION_TEST_RESPONSE, None, None, 5, request
         )
 
+    @urlmatch(**list_test_project_installations_urlmatch)
+    def get_test_project_installations_mock(self, url, request):
+        assert url.path == "/accounting-system/projects/TESTPROJ01/installations"
+        assert request.method == "GET"
+        return response(200, self.LIST_INSTALLATIONS_RESPONSE1, None, None, 5, request)
+
+    @urlmatch(**list_test_project_providers_installations_urlmatch)
+    def get_test_project_provider_installations_mock(self, url, request):
+        assert url.path == "/accounting-system/projects/TESTPROJ01/providers/TESTPROV01/installations"
+        assert request.method == "GET"
+        return response(200, self.LIST_INSTALLATIONS_RESPONSE1, None, None, 5, request)
 
 class InstallationMetricMocks(object):
     LIST_TEST_INSTALLATION_METRIC_LIST_RESPONSE = """{"size_of_page":10,"number_of_page":1,"total_elements":1,"total_pages":1,"content":[
@@ -159,4 +249,97 @@ class InstallationMetricMocks(object):
         assert "user_id" in body
         return response(
             201, body, None, None, 5, request
+        )
+
+class ProjectMetricMocks(object):
+    LIST_TEST_PROJECT_METRIC_LIST_RESPONSE = """{"size_of_page":10,"number_of_page":1,"total_elements":1,"total_pages":1,"content":[
+   {
+      "id": "67ed2aaae8af660056233998",
+      "time_period_start": "2024-01-01T03:43:40Z",
+      "time_period_end": "2024-01-01T09:20:37Z",
+      "value": 66.0336,
+      "project": "TEST PROJECT 01",
+      "provider": "TESTPROV01",
+      "installation_id": "68179546f1a5b48f0c854353",
+      "project_id": "TESTPROJ01",
+      "resource": "TESTRES01",
+      "user_id": "0123456789abcdef",
+      "metric_definition": {
+        "metric_definition_id": "678f89694665a309e8a6c9b2",
+        "metric_name": "storage",
+        "metric_description": "Storage size",
+        "unit_type": "TB/year",
+        "metric_type": "aggregated",
+        "creator_id": "4e0391ea-7b42-4b0a-a1b4-a70dd046df81@example.org"
+      }
+    }
+    ],"links":[]}"""
+
+    list_test_project_metrics_urlmatch = dict(
+        netloc="localhost",
+        path="/accounting-system/projects/TESTPROJ01/metrics",
+        method="GET",
+    )
+
+    @urlmatch(**list_test_project_metrics_urlmatch)
+    def get_test_project_metric_list_mock(self, url, request):
+        assert (
+            url.path
+            == "/accounting-system/projects/TESTPROJ01/metrics"
+        )
+        assert request.method == "GET"
+        return response(
+            200,
+            self.LIST_TEST_PROJECT_METRIC_LIST_RESPONSE,
+            None,
+            None,
+            5,
+            request,
+        )
+
+
+class ProjectProviderMetricMocks(object):
+    LIST_TEST_PROJECT_PROVIDER_METRIC_LIST_RESPONSE = """{"size_of_page":10,"number_of_page":1,"total_elements":1,"total_pages":1,"content":[
+   {
+      "id": "67ed2aaae8af660056233998",
+      "time_period_start": "2024-01-01T03:43:40Z",
+      "time_period_end": "2024-01-01T09:20:37Z",
+      "value": 66.0336,
+      "project": "TEST PROJECT 01",
+      "provider": "TESTPROV01",
+      "installation_id": "68179546f1a5b48f0c854353",
+      "project_id": "TESTPROJ01",
+      "resource": "TESTRES01",
+      "user_id": "0123456789abcdef",
+      "metric_definition": {
+        "metric_definition_id": "678f89694665a309e8a6c9b2",
+        "metric_name": "storage",
+        "metric_description": "Storage size",
+        "unit_type": "TB/year",
+        "metric_type": "aggregated",
+        "creator_id": "4e0391ea-7b42-4b0a-a1b4-a70dd046df81@example.org"
+      }
+    }
+    ],"links":[]}"""
+
+    list_test_project_provider_metrics_urlmatch = dict(
+        netloc="localhost",
+        path="/accounting-system/projects/TESTPROJ01/providers/TESTPROV01/metrics",
+        method="GET",
+    )
+
+    @urlmatch(**list_test_project_provider_metrics_urlmatch)
+    def get_test_project_provider_metric_list_mock(self, url, request):
+        assert (
+            url.path
+            == "/accounting-system/projects/TESTPROJ01/providers/TESTPROV01/metrics"
+        )
+        assert request.method == "GET"
+        return response(
+            200,
+            self.LIST_TEST_PROJECT_PROVIDER_METRIC_LIST_RESPONSE,
+            None,
+            None,
+            5,
+            request,
         )

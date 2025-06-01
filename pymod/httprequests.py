@@ -36,6 +36,38 @@ class HttpRequests(object):
                 "get",
                 "https://{0}/accounting-system/installations/{1}",
             ],
+            "project_metrics_list": [
+                "get",
+                "https://{0}/accounting-system/projects/{1}/metrics",
+            ],
+            "project_list": [
+                "get",
+                "https://{0}/accounting-system/projects",
+            ],
+            "project_entry": [
+                "get",
+                "https://{0}/accounting-system/projects/{1}",
+            ],
+            "project_installations_list": [
+                "get",
+                "https://{0}/accounting-system/projects/{1}/installations",
+            ],
+            "provider_list": [
+                "get",
+                "https://{0}/accounting-system/providers",
+            ],
+            "provider_entry": [
+                "get",
+                "https://{0}/accounting-system/providers/{1}",
+            ],
+            "project_provider_metric_list": [
+                "get",
+                "https://{0}/accounting-system/projects/{1}/providers/{2}/metrics",
+            ],
+            "project_provider_installations_list": [
+                "get",
+                "https://{0}/accounting-system/projects/{1}/providers/{2}/installations",
+            ],
         }
 
     def _error_dict(self, response_content, status):

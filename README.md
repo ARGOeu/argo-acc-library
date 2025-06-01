@@ -46,6 +46,10 @@ In the `examples` folder, you may find the following library usage examples:
 * getting a JSON list of registered installations (`examples/get_installations.py`)
 * getting a type / value list of metrics for a specific installation (`examples/get_installation_metrics.py`)
 * assigning a new metric entry to an installation
+* getting a title / ID list of registed projects
+* getting a type / value list of metrics for a specific project
+* getting a name / ID list of registed providers
+* getting a type / value list of metrics for a specific project / provider combination
 
 Help on running each example is available by running the example with `-h`.
 
@@ -78,6 +82,42 @@ python3 ./examples/add_installation_metric.py --host api.devel.acc.argo.grnet.gr
 ```
 
 where `...` should be replaced by a valid installation ID from the output of the first example and the rest of the parameters should be supplied with the new metric properties, as described in the example's help message (via `--help`)
+
+### Getting a title / ID list of registered projects
+
+Assuming you've saved your valid JWT in a file under `~/acc.jwt`, you may run the fourth example against the development instance of the service with
+
+```bash
+python3 ./examples/get_projects.py --host api.devel.acc.argo.grnet.gr --token ~/acc.jwt -f
+```
+
+### Getting a type / value list of metrics for a specific project
+
+Assuming you've saved your valid JWT in a file under `~/acc.jwt`, you may run the fifth example against the development instance of the service with
+
+```bash
+python3 ./examples/get_project_metrics.py --host api.devel.acc.argo.grnet.gr --token ~/acc.jwt -f --project ...
+```
+
+where `...` should be replaced by a valid project ID from the output of the previous example
+
+### Getting a name / ID list of registered providers
+
+Assuming you've saved your valid JWT in a file under `~/acc.jwt`, you may run the sixth example against the development instance of the service with
+
+```bash
+python3 ./examples/get_providers.py --host api.devel.acc.argo.grnet.gr --token ~/acc.jwt -f
+```
+
+### Getting a type / value list of metrics for a specific project / provider combination
+
+Assuming you've saved your valid JWT in a file under `~/acc.jwt`, you may run the seventh example against the development instance of the service with
+
+```bash
+python3 ./examples/get_provider_metrics.py --host api.devel.acc.argo.grnet.gr --token ~/acc.jwt -f --project ... --provider ...
+```
+
+where `...` should be replaced by a valid project ID and provider ID, respectively, from the output of the previous examples
 
 ## Environment variables
 

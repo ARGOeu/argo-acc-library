@@ -1,7 +1,7 @@
 import unittest
-from .accmocks import InstallationMocks, InstallationMetricMocks
+from .accmocks import InstallationMocks, InstallationMetricMocks, ProjectMocks, ProjectMetricMocks, ProjectProviderMetricMocks
 from httmock import urlmatch, HTTMock, response
-from pymod import ArgoAccountingService, Metric
+from pymod import ArgoAccountingService, InstallationMetric
 import logging
 
 class TestMetrics(unittest.TestCase):
@@ -9,6 +9,9 @@ class TestMetrics(unittest.TestCase):
         self.acc = ArgoAccountingService("localhost", "s3cr3t")
         self.InstallationMocks = InstallationMocks()
         self.InstallationMetricMocks = InstallationMetricMocks()
+        self.ProjectMocks = ProjectMocks()
+        self.ProjectMetricMocks = ProjectMetricMocks()
+        self.ProjectProviderMetricMocks = ProjectProviderMetricMocks()
 
     def testListTestInstallationMetrics(self):
         """Test the installation metrics listing functionality"""
@@ -71,7 +74,7 @@ class TestMetrics(unittest.TestCase):
             self.InstallationMetricMocks.post_installation_test_metric_mock,
         ):
             installation = self.acc.installations["68179546f1a5b48f0c854353"]
-            m = Metric(installation.id, {
+            m = InstallationMetric(installation.id, {
                 "metric_definition_id": "678f89694665a309e8a6c9b2",
                 "time_period_start": "2024-01-01T03:43:40Z",
                 "time_period_end": "2024-01-01T09:20:37Z",
@@ -133,6 +136,28 @@ class TestMetrics(unittest.TestCase):
             self.assertEqual(ret.value, 66.0336)
             self.assertEqual(ret.group_id, "3f5fc61f3e3af93b")
             self.assertEqual(ret.user_id, "9936cb22d3c26a34")
+
+    def testListTestProjectMetrics(self):
+        """Test the project metrics listing functionality"""
+        with (
+            HTTMock(self.ProjectMocks.get_project_test_mock),
+            HTTMock(
+                self.ProjectMetricMocks.get_test_project_metric_list_mock
+            ),
+        ):
+            metrics = self.acc.projects["TESTPROJ01"].metrics
+            self.assertEqual(len(list(metrics)), 1)
+
+    def testListTestProjectProviderMetrics(self):
+        """Test the project provider metrics listing functionality"""
+        with (
+            HTTMock(self.ProjectMocks.get_project_test_mock),
+            HTTMock(
+                self.ProjectProviderMetricMocks.get_test_project_provider_metric_list_mock
+            ),
+        ):
+            metrics = self.acc.projects["TESTPROJ01"].providers["TESTPROV01"].metrics
+            self.assertEqual(len(list(metrics)), 1)
 
 
 if __name__ == "__main__":

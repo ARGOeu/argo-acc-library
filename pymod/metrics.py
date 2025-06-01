@@ -1,7 +1,7 @@
 from .restresource import RestResourceList, RestResourceItem
 
 
-class Metric(RestResourceItem):
+class MetricBase(RestResourceItem):
     id = None
     time_period_start = None
     time_period_end = None
@@ -29,6 +29,12 @@ class MetricDefinition(RestResourceItem):
     metric_type = None
     creator_id = None
 
+    def _fetchRoute(self):
+        return ""
+
+    def _fetchArgs(self):
+        return []
+
 
 class Metrics(RestResourceList):
     """Base class for all metrics related subclasses"""
@@ -36,7 +42,7 @@ class Metrics(RestResourceList):
     pass
 
 
-class InstallationMetric(Metric):
+class InstallationMetric(MetricBase):
     def _fetchRoute(self):
         return "installation_metrics_entry"
 
@@ -59,3 +65,41 @@ class InstallationMetrics(Metrics):
 
     def _createChild(self, data):
         return InstallationMetric(self, data)
+
+
+class ProjectMetric(MetricBase):
+    def _fetchRoute(self):
+        return ""
+
+    def _fetchArgs(self):
+        return []
+
+
+class ProjectMetrics(Metrics):
+    def _fetchRoute(self):
+        return "project_metrics_list"
+
+    def _fetchArgs(self):
+        return [self._parent.id]
+
+    def _createChild(self, data):
+        return ProjectMetric(self, data)
+
+
+class ProviderMetric(MetricBase):
+    def _fetchRoute(self):
+        return ""
+
+    def _fetchArgs(self):
+        return []
+
+
+class ProviderMetrics(Metrics):
+    def _fetchRoute(self):
+        return "project_provider_metric_list"
+
+    def _fetchArgs(self):
+        return [self._parent._parent._parent.id, self._parent.id]
+
+    def _createChild(self, data):
+        return ProviderMetric(self, data)
