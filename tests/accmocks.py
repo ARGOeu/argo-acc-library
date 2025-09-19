@@ -64,7 +64,7 @@ class ProjectMocks(object):
 
     list_projects_urlmatch = dict(
         netloc="localhost",
-        path="/accounting-system/projects",
+        path="/accounting-system/admin/projects",
         method="GET",
         query="page=1",
     )
@@ -77,7 +77,7 @@ class ProjectMocks(object):
 
     @urlmatch(**list_projects_urlmatch)
     def list_projects_mock(self, url, request):
-        assert url.path == "/accounting-system/projects"
+        assert url.path == "/accounting-system/admin/projects"
         assert request.method == "GET"
         return response(200, self.LIST_PROJECTS_RESPONSE, None, None, 5, request)
 

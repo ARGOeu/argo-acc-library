@@ -43,7 +43,7 @@ class HttpRequests(object):
             ],
             "project_list": [
                 "get",
-                "https://{0}/accounting-system/projects",
+                "https://{0}/accounting-system/admin/projects",
             ],
             "project_entry": [
                 "get",
