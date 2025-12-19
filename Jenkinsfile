@@ -39,7 +39,7 @@ pipeline {
                                 cobertura coberturaReportFile: '**/coverage.xml'
                             }
                         }
-                        stage ('Build Rocky 9') {
+                 stage ('Build Rocky 9') {
                             steps {
                                 echo 'Building Rocky 9 RPM...'
                                 withCredentials(bindings: [sshUserPrivateKey(credentialsId: 'jenkins-rpm-repo', usernameVariable: 'REPOUSER', \
@@ -49,6 +49,29 @@ pipeline {
                                 archiveArtifacts artifacts: '**/*.rpm', fingerprint: true
                             }
                         }
+                stage ('Upload to PyPI'){
+                            when {
+                                branch 'main'
+                        }
+                        agent {
+                        docker {
+                        image 'argo.registry:5000/python3'
+                        }
+                        }
+                        steps {
+                                echo 'Build python package and upload'
+                                withCredentials(bindings: [usernamePassword(credentialsId: 'pypi-argoeu', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
+                                    sh '''
+                                    cd ${WORKSPACE}/$PROJECT_DIR
+                                    pipenv install twine --dev
+                                    pipenv install 
+                                    pipenv install --dev
+                                    pipenv run python setup.py sdist bdist_wheel
+                                    pipenv run python -m twine upload -u $USERNAME -p $PASSWORD dist/*
+                                    '''
+                        }
+                    }
+                }
                     }
                 }
             }
