@@ -36,7 +36,6 @@ pipeline {
                                     tox -p all
                                     coverage xml --omit=*usr* --omit=*.tox*
                                 '''
-                                cobertura coberturaReportFile: '**/coverage.xml'
                             }
                         }
                  stage ('Build Rocky 9') {
